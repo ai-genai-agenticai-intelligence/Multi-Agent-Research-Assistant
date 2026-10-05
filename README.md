@@ -1,4 +1,4 @@
-# 🔬 ResearchMind: Autonomous Multi-Agent AI Research System
+# ResearchMind: Autonomous Multi-Agent AI Research System
 https://multi-agent-research-assistant-1-jtam.onrender.com
 
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
@@ -31,26 +31,26 @@ Powered by **LangChain**, **Tavily Search**, and high-performance LLM engines (*
 
 ---
 
-## 🏛️ System Architecture
+##  System Architecture
 
 The pipeline follows a **Directed Acyclic Graph (DAG)** topology where each node performs a discrete, auditable transformation:
 
 ```mermaid
 graph LR
     subgraph Input
-        A[🎯 Research Topic]
+        A[ Research Topic]
     end
 
     subgraph Agent Pipeline
-        B[🔍 Search Agent<br/><i>Tavily Search Tool</i>]
-        C[📄 Reader Agent<br/><i>HTML Web Scraper</i>]
-        D[✍️ Writer Chain<br/><i>Report Synthesizer</i>]
-        E[🧐 Critic Chain<br/><i>Editorial Quality Gate</i>]
+        B[ Search Agent<br/><i>Tavily Search Tool</i>]
+        C[ Reader Agent<br/><i>HTML Web Scraper</i>]
+        D[ Writer Chain<br/><i>Report Synthesizer</i>]
+        E[ Critic Chain<br/><i>Editorial Quality Gate</i>]
     end
 
     subgraph Output
-        F[📑 Final Research Report<br/><i>Markdown + Sources</i>]
-        G[⭐ Quality Audit Scorecard<br/><i>Scores + Improvements</i>]
+        F[Final Research Report<br/><i>Markdown + Sources</i>]
+        G[ Quality Audit Scorecard<br/><i>Scores + Improvements</i>]
     end
 
     A --> B
@@ -64,7 +64,7 @@ graph LR
 
 ---
 
-## 🤖 Agent Workflow Breakdown
+## Agent Workflow Breakdown
 
 | # | Agent / Chain | Role & Methodology | Primary Tool / Engine |
 |---|---|---|---|
@@ -75,7 +75,7 @@ graph LR
 
 ---
 
-## 📂 Project Structure
+##  Project Structure
 
 ```text
 27.Multi-Agent AI Research System/
@@ -91,7 +91,7 @@ graph LR
 
 ---
 
-## ✨ Key Features
+##  Key Features
 
 - **Multi-Provider LLM Flexibility:** Seamlessly switch between **Groq** (`openai/gpt-oss-20b`, `qwen/qwen3.8-27b`), **Google Gemini** (`gemini-3.7-flash`, `gemini-2.5-flash`), and **OpenAI** (`gpt-4o-mini`).
 - **Real-Time Web Intelligence:** Integrated with Tavily Search API for up-to-date factual retrieval.
@@ -104,7 +104,7 @@ graph LR
 
 ---
 
-## 📋 Prerequisites
+##  Prerequisites
 
 - **Python 3.11+** installed on your system.
 - An API Key for at least one LLM provider (**Groq** or **Google AI Studio** or **OpenAI**).
@@ -112,7 +112,7 @@ graph LR
 
 ---
 
-## ⚙️ Installation & Setup
+##  Installation & Setup
 
 ### 1. Clone or Open the Repository
 ```bash
@@ -140,7 +140,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🔑 Configuration (.env)
+##  Configuration (.env)
 
 Create a `.env` file in the root directory and add your API credentials:
 
@@ -175,7 +175,7 @@ OPENAI_MODEL="gpt-4o-mini"
 
 ---
 
-## 🚀 Running the Project
+##  Running the Project
 
 ### 1. Web Interface (Streamlit)
 
