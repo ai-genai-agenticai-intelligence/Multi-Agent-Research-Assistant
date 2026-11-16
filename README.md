@@ -10,7 +10,7 @@ https://multi-agent-research-assistant-1-jtam.onrender.com
 
 **ResearchMind** is an enterprise-grade autonomous multi-agent research pipeline that automates end-to-end web research, content extraction, document synthesis, and independent editorial peer-review.
 
-Powered by **LangChain**, **Tavily Search**, and high-performance LLM engines (**Groq**, **Google Gemini**, and **OpenAI**), the system orchestrates 4 specialized AI agents working sequentially to produce comprehensive, citation-backed intelligence dossiers.
+Powered by **LangChain**, **Tavily Search**, and LLM engines (**Groq**, **Google Gemini**, and **OpenAI**), the system orchestrates four research stages to produce citation-backed reports.
 
 ---
 
@@ -66,12 +66,12 @@ graph LR
 
 ## Agent Workflow Breakdown
 
-| # | Agent / Chain | Role & Methodology | Primary Tool / Engine |
-|---|---|---|---|
-| **01** | **Search Agent** | Scans live web indices for verified citations, academic articles, and recent news. Returns titles, snippets, and source URLs. | `TavilyClient` Search API |
-| **02** | **Reader Agent** | Inspects search results, identifies the highest-relevance URLs, and scrapes complete body text while decomposing boilerplate (scripts, ads, navigation). | `BeautifulSoup4` + `requests` |
-| **03** | **Writer Chain** | Combines broad search snippets with deep scraped text to author a structured, objective research report with introduction, key findings, conclusions, and sources. | LLM Synthesizer Chain |
-| **04** | **Critic Chain** | Acts as an independent reviewer, auditing factual depth, logical rigor, citations, and structural clarity. Assigns an objective score (`X/10`) with strengths and areas to improve. | LLM Critic Gate |
+| #      | Agent / Chain    | Role & Methodology                                                                                                                                                                  | Primary Tool / Engine         |
+| ------ | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| **01** | **Search Agent** | Sends the research topic directly to Tavily and returns titles, snippets, and source URLs.                                                                                         | `TavilyClient` Search API     |
+| **02** | **Reader Agent** | Scrapes the highest-ranked result URL directly and removes page boilerplate to extract article text.                                                                                | `BeautifulSoup4` + `requests` |
+| **03** | **Writer Chain** | Combines broad search snippets with deep scraped text to author a structured, objective research report with introduction, key findings, conclusions, and sources.                  | LLM Synthesizer Chain         |
+| **04** | **Critic Chain** | Acts as an independent reviewer, auditing factual depth, logical rigor, citations, and structural clarity. Assigns an objective score (`X/10`) with strengths and areas to improve. | LLM Critic Gate               |
 
 ---
 
@@ -79,7 +79,7 @@ graph LR
 
 ```text
 27.Multi-Agent AI Research System/
-├── agents.py           # Agent factories, LLM provider selector, Writer & Critic chains
+├── agents.py           # LLM provider selector, Writer & Critic chains
 ├── tools.py            # LangChain tool definitions (Tavily search & BeautifulSoup scraper)
 ├── pipeline.py         # Standalone CLI orchestration pipeline with UTF-8 support
 ├── app.py              # Streamlit web dashboard with interactive progress & results
@@ -93,12 +93,12 @@ graph LR
 
 ##  Key Features
 
-- **Multi-Provider LLM Flexibility:** Seamlessly switch between **Groq** (`openai/gpt-oss-20b`, `qwen/qwen3.8-27b`), **Google Gemini** (`gemini-3.7-flash`, `gemini-2.5-flash`), and **OpenAI** (`gpt-4o-mini`).
+- **Multi-Provider LLM Flexibility:** Seamlessly switch between **Groq** (`openai/gpt-oss-20b`, `qwen/qwen3.8-27b`), **Google Gemini** (`gemini-4-hydrogen`, `gemini-3.8-flash`), and **OpenAI** (`gpt-4o-mini`).
 - **Real-Time Web Intelligence:** Integrated with Tavily Search API for up-to-date factual retrieval.
 - **Deep Web Scraping:** Automated HTML sanitization and boilerplate extraction via BeautifulSoup.
 - **Automated Peer Review:** Built-in Critic agent evaluates and scores every report for quality control.
 - **Dual Runtime Modes:**
-  - **Interactive Web Dashboard:** Modern dark-themed Streamlit UI with progress tracking and markdown export.
+  - **Interactive Web Dashboard:** Centered dark-themed workspace with clickable example questions, a no-call saved demo, optional live agent progress, tabbed report/critique/sources/raw output, and Markdown export.
   - **Headless CLI:** Lightweight terminal execution with real-time stream flushing.
 - **Cross-Platform Resilient:** Built-in Windows `sys.stdout` UTF-8 reconfig to prevent terminal encoding crashes.
 
@@ -115,6 +115,7 @@ graph LR
 ##  Installation & Setup
 
 ### 1. Clone or Open the Repository
+
 ```bash
 cd "d:/ABHI-VSCODE/27.Multi-Agent AI Research System"
 ```
@@ -122,18 +123,21 @@ cd "d:/ABHI-VSCODE/27.Multi-Agent AI Research System"
 ### 2. Create and Activate a Virtual Environment
 
 **Windows (PowerShell):**
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
 
 **macOS / Linux:**
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
 
 ### 3. Install Required Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -165,7 +169,7 @@ GROQ_MODEL="openai/gpt-oss-20b"
 # --- Option B: Google Gemini ---
 # Get a free key at: https://aistudio.google.com/app/apikey
 GEMINI_API_KEY="your-gemini-api-key"
-GEMINI_MODEL="gemini-3.7-flash"
+GEMINI_MODEL="gemini-4-hydrogen"
 
 # --- Option C: OpenAI ---
 # Get a key at: https://platform.openai.com/api-keys
@@ -186,7 +190,7 @@ streamlit run app.py
 ```
 
 - Open your browser at: `http://localhost:8501`
-- Enter any topic (e.g., *"Quantum computing breakthroughs in 2026"*).
+- Enter any topic (e.g., _"Quantum computing breakthroughs in 2026"_).
 - Click **Run Research Pipeline**.
 - View live step-by-step progress, raw outputs, and download the finished `.md` report.
 
@@ -201,6 +205,7 @@ python pipeline.py
 ```
 
 **Interactive CLI Example:**
+
 ```text
 Enter a research topic : Impact of Artificial Intelligence in Cancer Detection
 
@@ -238,26 +243,32 @@ step 4 - critic is reviewing the report
 
 The system dynamically adapts to available API keys via `get_llm()` in `agents.py`:
 
-| Provider | Recommended Model | Benefits |
-|---|---|---|
-| **Groq** | `openai/gpt-oss-20b` / `qwen/qwen3.8-27b` | Ultra-low latency, generous free tier without strict daily rate limits. |
-| **Google Gemini** | `gemini-3.7-flash` / `gemini-2.5-flash` | Large context window, multimodal capabilities, high reasoning accuracy. |
-| **OpenAI** | `gpt-4o-mini` / `gpt-4o` | Reliable structured outputs and comprehensive synthesis. |
+| Provider          | Recommended Model                         | Benefits                                                                |
+| ----------------- | ----------------------------------------- | ----------------------------------------------------------------------- |
+| **Groq**          | `openai/gpt-oss-20b` / `qwen/qwen3.8-27b` | Ultra-low latency; rate limits depend on the model and account tier. |
+| **Google Gemini** | `gemini-4-hydrogen` / `gemini-3.8-flash`  | Agentic workflows with free-tier availability depending on project limits. |
+| **OpenAI**        | `gpt-4o-mini` / `gpt-4o`                  | Reliable structured outputs and comprehensive synthesis.                |
 
 ---
 
 ## 🛠️ Troubleshooting & FAQs
 
 ### Q: I encountered `429 RESOURCE_EXHAUSTED` with Gemini?
-> **Solution:** Google AI Studio limits free-tier projects to 20 requests/day. To resolve this:
-> 1. Switch to **Groq** by setting `LLM_PROVIDER=groq` and providing a `GROQ_API_KEY` in `.env`.
-> 2. Or create a Gemini API key in a **new Google Cloud project** at [Google AI Studio](https://aistudio.google.com/).
+
+> **Solution:** Gemini quotas vary by project, model, and billing tier. Gemini 4 Argon is not available on the Free tier; use a model such as `gemini-4-hydrogen` that has Free-tier access, check your active limits in [Google AI Studio](https://aistudio.google.com/rate-limit), or enable billing for paid models. The app preserves your topic and displays a quota message instead of a traceback.
+
+### Q: Groq returned a `429` rate-limit error?
+
+> **Solution:** Groq limits vary by model and account tier. Wait for the retry window to pass, or set `LLM_PROVIDER` in `.env` to another configured provider (`gemini` or `openai`) and restart the app. The web UI preserves your topic and displays a friendly error instead of a traceback.
 
 ### Q: Windows `UnicodeEncodeError` when printing characters in terminal?
+
 > **Solution:** `pipeline.py` automatically configures `sys.stdout.reconfigure(encoding="utf-8", errors="replace")` to handle special characters (e.g. quotes, dashes) safely.
 
 ### Q: How do I test individual agent tools?
+
 > **Solution:** You can invoke the scraping tool directly:
+>
 > ```bash
 > python tools.py
 > ```

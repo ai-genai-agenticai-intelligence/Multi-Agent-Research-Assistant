@@ -1,4 +1,5 @@
 import sys
+
 if sys.platform == "win32":
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -6,66 +7,45 @@ if sys.platform == "win32":
     except Exception:
         pass
 
-from agents import build_reader_agent, build_search_agent, writer_chain, critic_chain
+from agents import writer_chain, critic_chain
+from tools import scrape_url, web_search
 
-def _get_text(content) -> str:
-    if isinstance(content, str):
-        return content
-    elif isinstance(content, list):
-        return "\n".join(
-            item.get("text", "") if isinstance(item, dict) else str(item)
-            for item in content
-        )
-    return str(content)
 
-def run_research_pipeline(topic : str) -> dict:
+def _first_source_url(search_text: str) -> str | None:
+    for line in search_text.splitlines():
+        if line.startswith("URL: "):
+            url = line[5:].strip().rstrip(".,);]")
+            if url.startswith(("http://", "https://")):
+                return url
+    return None
+
+
+def run_research_pipeline(topic: str) -> dict:
 
     state = {}
 
-    #search agent working 
+    # search agent working
     print("\n" + " =" * 50, flush=True)
     print("step 1 - search agent is working ...", flush=True)
     print("=" * 50, flush=True)
 
-    search_agent = build_search_agent()
-    search_result = search_agent.invoke({
-        "messages" : [("user", f"Find recent, reliable and detailed information about: {topic}. Ensure all source URLs are included in your output.")]
-    })
+    state["search_results"] = web_search.invoke({"query": topic})
 
-    # Extract LLM summary and any tool outputs containing URLs
-    tool_outputs = [
-        str(msg.content)
-        for msg in search_result.get("messages", [])
-        if getattr(msg, "name", None) == "web_search" or getattr(msg, "type", None) == "tool"
-    ]
+    print("\n search result:\n", state["search_results"], flush=True)
 
-    final_search_text = _get_text(search_result['messages'][-1].content)
-    if tool_outputs:
-        state["search_results"] = f"{final_search_text}\n\nSources Found:\n" + "\n".join(tool_outputs)
-    else:
-        state["search_results"] = final_search_text
-
-    print("\n search result:\n", state['search_results'], flush=True)
-
-    #step 2 - reader agent 
+    # step 2 - reader agent
     print("\n" + " =" * 50, flush=True)
     print("step 2 - Reader agent is scraping top resources ...", flush=True)
     print("=" * 50, flush=True)
 
-    reader_agent = build_reader_agent()
-    reader_result = reader_agent.invoke({
-        "messages": [("user",
-            f"Based on the following search results about '{topic}', "
-            f"pick the most relevant URL and call scrape_url on it for deeper content.\n\n"
-            f"Search Results:\n{state['search_results'][:3000]}"
-        )]
-    })
+    source_url = _first_source_url(state["search_results"])
+    if not source_url:
+        raise ValueError("Web search returned no usable source URLs.")
+    state["scraped_content"] = scrape_url.invoke({"url": source_url})
 
-    state['scraped_content'] = _get_text(reader_result['messages'][-1].content)
+    print("\nscraped content:\n", state["scraped_content"], flush=True)
 
-    print("\nscraped content:\n", state['scraped_content'], flush=True)
-
-    #step 3 - writer chain 
+    # step 3 - writer chain
 
     print("\n" + " =" * 50, flush=True)
     print("step 3 - Writer is drafting the report ...", flush=True)
@@ -76,27 +56,23 @@ def run_research_pipeline(topic : str) -> dict:
         f"DETAILED SCRAPED CONTENT : \n {state['scraped_content']}"
     )
 
-    state["report"] = writer_chain.invoke({
-        "topic" : topic,
-        "research" : research_combined
-    })
+    state["report"] = writer_chain.invoke(
+        {"topic": topic, "research": research_combined}
+    )
 
-    print("\n Final Report:\n", state['report'], flush=True)
+    print("\n Final Report:\n", state["report"], flush=True)
 
-    #critic report 
+    # critic report
 
     print("\n" + " =" * 50, flush=True)
     print("step 4 - critic is reviewing the report", flush=True)
     print("=" * 50, flush=True)
 
-    state["feedback"] = critic_chain.invoke({
-        "report":state['report']
-    })
+    state["feedback"] = critic_chain.invoke({"report": state["report"]})
 
-    print("\n critic report:\n", state['feedback'], flush=True)
+    print("\n critic report:\n", state["feedback"], flush=True)
 
     return state
-
 
 
 if __name__ == "__main__":
